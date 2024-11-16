@@ -4,18 +4,16 @@ import argparse
 import matplotlib.pyplot as plt
 
 
-def apply_delay_effect(data, delay_samples, decay_factor=0.5):
+def apply_delay_effect(data, delay_samples, decay_factor=0.5, repeats=10):
     """Applies a simple delay effect to each color channel in the image data."""
     flattened_data = data.flatten()
     output = np.copy(flattened_data)
 
     delay_offset = delay_samples * 3
 
-    output[delay_offset:] = np.clip(
-        output[delay_offset:] + decay_factor * flattened_data[:-delay_offset],
-        0, 255
-    ).astype(np.uint8)
-
+    for _ in range(repeats):
+        output[delay_offset:] += np.clip(decay_factor * output[:-delay_offset], 0, 255).astype(np.uint8)
+        output = np.clip(output, 0, 255).astype(np.uint8)
     return output.reshape(data.shape)
 
 
@@ -34,10 +32,8 @@ def save_raw_data_as_image(data, file_path):
 
 
 def display_image(data):
-    """Display the modified image using matplotlib."""
-    plt.imshow(data)
-    plt.axis("off")
-    plt.show()
+    """Display the modified image."""
+    Image.fromarray(data).show()
 
 
 def main():
