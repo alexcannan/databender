@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
+from getbent.effects import process_effect
 from getbent.io import load_data, make_output_file, save_data
 
 
@@ -21,13 +22,7 @@ print(f"{bend.shape=}")
 start = bend.shape[0] // 10
 end = bend.shape[0] - start
 for effect in args.effects:
-    if effect == "reverse":
-        bend[start:end] = bend[start:end][::-1]
-    elif effect == "invert":
-        bend[start:end] = -bend[start:end]
-    else:
-        raise ValueError(f"Unknown effect: {effect}")
-
+    bend[start:end] = process_effect(bend[start:end], effect)
 
 if not args.output_file:
     args.output_file = make_output_file(args.input_file)
