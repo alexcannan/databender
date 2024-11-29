@@ -24,6 +24,6 @@ def save_data_ulaw(bend: np.ndarray, output_file: Path):
     """ map u-law floats to -1 to 1, map to uint8, write to file """
     x = np.clip(bend, -1, 1)
     x = np.sign(x) * (np.log1p(MU * np.abs(x)) / np.log1p(MU))  # u-law F
-    uint8_bytes = np.clip((x + 1) / 2 * 255, 0, 255).astype(np.uint8)
+    uint8_bytes = np.round(np.clip((x + 1) / 2 * 255, 0, 255)).astype(np.uint8)
     with open(output_file, "wb") as f:
         f.write(uint8_bytes.tobytes())
