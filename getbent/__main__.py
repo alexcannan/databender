@@ -19,7 +19,7 @@ bend = load_data_ulaw(args.input_file)
 
 # apply effects to central 90% of file
 print(f"{bend.shape=}")
-start = bend.shape[0] // 10
+start = bend.shape[0] // 20
 end = bend.shape[0] - start
 for effect in args.effects:
     bend[start:end] = process_effect(bend[start:end], effect)
