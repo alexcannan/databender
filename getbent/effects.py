@@ -32,6 +32,10 @@ def invert(data: np.ndarray) -> np.ndarray:
     return -data
 
 
+def add(data: np.ndarray, value: float) -> np.ndarray:
+    return data + value
+
+
 def echo(data: np.ndarray, delay: float=1.0, decay: float=0.5) -> np.ndarray:
     echo = data.copy()
     delay_hop = int(delay * SAMPLE_RATE)
