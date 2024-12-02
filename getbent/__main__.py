@@ -16,11 +16,16 @@ args = parser.parse_args()
 
 bend = load_data_ulaw(args.input_file)
 
-
-# apply effects to central 90% of file
-print(f"{bend.shape=}")
+# prepare central 90% of file
 start = bend.shape[0] // 20
 end = bend.shape[0] - start
+
+# shift bounds randomly
+p005 = bend.shape[0] // 200
+shift = np.random.randint(-p005, p005)
+start += shift
+end += shift
+
 for effect in args.effects:
     bend[start:end] = process_effect(bend[start:end], effect)
 
