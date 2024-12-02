@@ -46,3 +46,17 @@ def echo(data: np.ndarray, delay: float=1.0, decay: float=0.5) -> np.ndarray:
         delay_i *= decay_coeff
         data[i*delay_hop:] += delay_i
     return data
+
+
+def hpfft(data: np.ndarray, cutoff: float=1000.0) -> np.ndarray:
+    fft = np.fft.rfft(data)
+    freqs = np.fft.rfftfreq(data.shape[0], d=1/SAMPLE_RATE)
+    high_pass = freqs > cutoff
+    return np.fft.irfft(fft * high_pass)
+
+
+def lpfft(data: np.ndarray, cutoff: float=1000.0) -> np.ndarray:
+    fft = np.fft.rfft(data)
+    freqs = np.fft.rfftfreq(data.shape[0], d=1/SAMPLE_RATE)
+    low_pass = freqs < cutoff
+    return np.fft.irfft(fft * low_pass)
