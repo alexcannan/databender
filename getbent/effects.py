@@ -32,21 +32,27 @@ def invert(data: np.ndarray) -> np.ndarray:
     return -data
 
 
-def add(data: np.ndarray, value: float) -> np.ndarray:
+def add(data: np.ndarray, value: float=0.1) -> np.ndarray:
     return data + value
 
 
 def echo(data: np.ndarray, delay: float=1.0, decay: float=0.5) -> np.ndarray:
-    echo = data.copy()
     delay_hop = int(delay * SAMPLE_RATE)
-    n_delays = data.shape[0] // delay_hop
-    for i in range(n_delays):
-        delay_i = echo[:data.shape[0] - i*delay_hop]
-        decay_coeff = decay ** i
-        delay_i *= decay_coeff
-        data[i*delay_hop:] += delay_i
-    return data
+    n_samples = data.shape[0]
+    n_delays = n_samples // delay_hop
 
+    decay_factors = decay ** np.arange(n_delays)
+    echo_buffer = np.zeros_like(data)
+
+    for i, decay_coeff in enumerate(decay_factors):
+        start_idx = i * delay_hop
+        end_idx = n_samples - start_idx
+        echo_buffer[start_idx:] += data[:end_idx] * decay_coeff
+
+    result = data + echo_buffer
+    if True:
+        result /= np.max(np.abs(result))
+    return result
 
 def hpfft(data: np.ndarray, cutoff: float=1000.0) -> np.ndarray:
     fft = np.fft.rfft(data)
@@ -60,3 +66,16 @@ def lpfft(data: np.ndarray, cutoff: float=1000.0) -> np.ndarray:
     freqs = np.fft.rfftfreq(data.shape[0], d=1/SAMPLE_RATE)
     low_pass = freqs < cutoff
     return np.fft.irfft(fft * low_pass)
+
+
+def convolve(data: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    return np.convolve(data, kernel, mode="same")
+
+
+def lpf_convolve(data: np.ndarray, cutoff: float=1000.0, kernel_size: int=101) -> np.ndarray:
+    normalized_cutoff = cutoff / SAMPLE_RATE / 2
+    t = np.arange(-kernel_size // 2, kernel_size // 2)
+    sinc_kernel = np.sinc(2 * normalized_cutoff * t)
+    sinc_kernel *= np.hamming(kernel_size)
+    sinc_kernel /= np.sum(sinc_kernel)
+    return np.convolve(data, sinc_kernel, mode="same")
